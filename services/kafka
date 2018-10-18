@@ -3,14 +3,32 @@
 
 DAEMON_PATH=/opt/kafka/bin
 DAEMON_NAME=kafka
+KAFKA_CONFIG=/opt/kafka/config/server.properties
 # Check that networking is up.
 #[ ${NETWORKING} = "no" ] && exit 0
 
 PATH=$PATH:$DAEMON_PATH
 
+configure() {
+    readarray -t configuration < <(compgen  -A variable | grep "KAFKA__")
+    for variable in "${configuration[@]}"
+    do
+      kafka_parameter="${variable//KAFKA__/}"
+      kafka_parameter="${kafka_parameter,,}"
+      kafka_parameter="${kafka_parameter//_/\.}"
+      eval value=\$$variable
+      if [ "`grep $kafka_parameter $KAFKA_CONFIG | grep '^[^#;]'`" == "" ]; then
+        echo -e "\n$kafka_parameter=$value\n" >> $KAFKA_CONFIG
+      else
+        sed -r -i "s/#($kafka_parameter)=(.*)/\1=$value/g" $KAFKA_CONFIG
+      fi
+    done
+}
+
 # See how we were called.
 case "$1" in
   start)
+        configure
         # Start daemon.
         pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
@@ -18,7 +36,7 @@ case "$1" in
             echo "Kafka is already running"
         else
           echo "Starting $DAEMON_NAME"
-          $DAEMON_PATH/kafka-server-start.sh -daemon /opt/kafka/config/server.properties
+          $DAEMON_PATH/kafka-server-start.sh -daemon $KAFKA_CONFIG
         fi
         ;;
   stop)
