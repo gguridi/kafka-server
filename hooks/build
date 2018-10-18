@@ -7,7 +7,7 @@ for SCALA_VERSION in "${SCALA_VERSIONS[@]}"
 do
     for KAFKA_VERSION in "${KAFKA_VERSIONS[@]}"
     do
-        $BUILD="$DOCKER_REPO:$SCALA_VERSION-$KAFKA_VERSION"
+        BUILD="$DOCKER_REPO:$SCALA_VERSION-$KAFKA_VERSION"
         docker build --build-arg=SCALA_VERSION=$SCALA_VERSION --build-arg=KAFKA_VERSION=$KAFKA_VERSION -t $BUILD .
         docker push $BUILD
     done
