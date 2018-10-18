@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 SCALA_VERSIONS=( "2.11" "2.12" )
 KAFKA_VERSIONS=( "1.0.0" "1.1.0" "2.0.0" )
