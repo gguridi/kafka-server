@@ -17,11 +17,7 @@ configure() {
       kafka_parameter="${kafka_parameter,,}"
       kafka_parameter="${kafka_parameter//_/\.}"
       eval value=\$$variable
-      if [ "`grep $kafka_parameter $KAFKA_CONFIG | grep '^[^#;]'`" == "" ]; then
-        echo -e "\n$kafka_parameter=$value\n" >> $KAFKA_CONFIG
-      else
-        sed -r -i "s/#($kafka_parameter)=(.*)/\1=$value/g" $KAFKA_CONFIG
-      fi
+      echo -e "\n$kafka_parameter=$value\n" >> $KAFKA_CONFIG
     done
 }
 

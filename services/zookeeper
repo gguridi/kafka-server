@@ -16,11 +16,7 @@ configure() {
       zookeeper_parameter="${zookeeper_parameter,,}"
       zookeeper_parameter="${zookeeper_parameter//_/\.}"
       eval value=\$$variable
-      if [ "`grep $zookeeper_parameter $ZOOKEEPER_CONFIG | grep '^[^#;]'`" == "" ]; then
-        echo -e "\n$zookeeper_parameter=$value\n" >> $ZOOKEEPER_CONFIG
-      else
-        sed -r -i "s/#($zookeeper_parameter)=(.*)/\1=$value/g" $ZOOKEEPER_CONFIG
-      fi
+      echo -e "\n$zookeeper_parameter=$value\n" >> $ZOOKEEPER_CONFIG
     done
 }
 
