@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV KAFKA_HOME /opt/kafka
 
 RUN apk update
-RUN apk add openssl ca-certificates curl supervisor bind-tools net-tools bash
+RUN apk add openssl ca-certificates curl supervisor bind-tools net-tools bash libc6-compat
 RUN update-ca-certificates
 
 COPY services/kafka services/zookeeper /opt/services/
