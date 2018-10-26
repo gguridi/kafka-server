@@ -10,8 +10,8 @@ RUN apk update
 RUN apk add openssl ca-certificates curl supervisor bind-tools net-tools bash libc6-compat
 RUN update-ca-certificates
 
-COPY services/kafka services/zookeeper /opt/services/
-COPY supervisor/kafka.ini supervisor/zookeeper.ini /etc/supervisor.d/
+COPY services/ /opt/services/
+COPY supervisor/ /etc/supervisor.d/
 
 RUN curl -o /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz http://apache.mirror.anlx.net/kafka/"$KAFKA_VERSION"/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz && \
     tar xvfz /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz -C /tmp && \

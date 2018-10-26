@@ -1,5 +1,4 @@
 #!/bin/bash
-#/etc/init.d/kafka
 
 DAEMON_PATH=/opt/kafka/bin
 DAEMON_NAME=kafka
@@ -9,22 +8,26 @@ KAFKA_CONFIG=/opt/kafka/config/server.properties
 
 PATH=$PATH:$DAEMON_PATH
 
-configure() {
-    readarray -t configuration < <(compgen  -A variable | grep "KAFKA__")
-    for variable in "${configuration[@]}"
-    do
-      kafka_parameter="${variable//KAFKA__/}"
-      kafka_parameter="${kafka_parameter,,}"
-      kafka_parameter="${kafka_parameter//_/\.}"
-      eval value=\$$variable
-      echo -e "\n$kafka_parameter=$value\n" >> $KAFKA_CONFIG
-    done
-}
+current_dir="$(dirname "$0")"
+. "$current_dir/configure.sh"
 
 # See how we were called.
 case "$1" in
   start)
-        configure
+        CONFIGURED_FILE="$HOME/.kafka_configured"
+        if [ ! -f $CONFIGURED_FILE ]; then
+          configure "KAFKA__" $KAFKA_CONFIG
+          touch $CONFIGURED_FILE
+          echo "Configuring $KAFKA_CONFIG."
+        fi
+
+        # Wait until Zookeeper started and listens on port 2181.
+        while [ -z "`netstat -tln | grep 2181`" ]; do
+          echo 'Waiting for Zookeeper to start ...'
+          sleep 1
+        done
+        echo 'Zookeeper started. Proceeding to start Kafka.'
+
         # Start daemon.
         pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
@@ -32,7 +35,7 @@ case "$1" in
             echo "Kafka is already running"
         else
           echo "Starting $DAEMON_NAME"
-          $DAEMON_PATH/kafka-server-start.sh -daemon $KAFKA_CONFIG
+          $DAEMON_PATH/kafka-server-start.sh $KAFKA_CONFIG
         fi
         ;;
   stop)

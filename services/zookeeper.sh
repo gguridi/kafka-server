@@ -8,30 +8,27 @@ ZOOKEEPER_CONFIG=/opt/kafka/config/zookeeper.properties
 
 PATH=$PATH:$DAEMON_PATH
 
-configure() {
-    readarray -t configuration < <(compgen  -A variable | grep "ZOOKEEPER__")
-    for variable in "${configuration[@]}"
-    do
-      zookeeper_parameter="${variable//ZOOKEEPER__/}"
-      zookeeper_parameter="${zookeeper_parameter,,}"
-      zookeeper_parameter="${zookeeper_parameter//_/\.}"
-      eval value=\$$variable
-      echo -e "\n$zookeeper_parameter=$value\n" >> $ZOOKEEPER_CONFIG
-    done
-}
+current_dir="$(dirname "$0")"
+. "$current_dir/configure.sh"
 
 # See how we were called.
 case "$1" in
   start)
+        CONFIGURED_FILE="$HOME/.zookeeper_configured"
+        if [ ! -f $CONFIGURED_FILE ]; then
+          configure "ZOOKEEPER__" $ZOOKEEPER_CONFIG
+          touch $CONFIGURED_FILE
+          echo "Configuring $ZOOKEEPER_CONFIG."
+        fi
+
         # Start daemon.
-        configure
         pid=`ps ax | grep -i 'org.apache.zookeeper' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
           then
             echo "Zookeeper is already running";
         else
           echo "Starting $DAEMON_NAME";
-          $DAEMON_PATH/zookeeper-server-start.sh -daemon $ZOOKEEPER_CONFIG
+          $DAEMON_PATH/zookeeper-server-start.sh $ZOOKEEPER_CONFIG
         fi
         ;;
   stop)
