@@ -1,7 +1,7 @@
 FROM openjdk:8-jre-alpine
 
 ARG SCALA_VERSION="2.12"
-ARG KAFKA_VERSION="2.0.0"
+ARG KAFKA_VERSION="2.1.0"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV KAFKA_HOME /opt/kafka
