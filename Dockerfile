@@ -1,4 +1,4 @@
-FROM openjdk:8-jre-alpine
+FROM openjdk:8-jdk-alpine
 
 ARG SCALA_VERSION="2.12"
 ARG KAFKA_VERSION="2.0.0"
@@ -19,5 +19,7 @@ RUN curl -o /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz http://apache.mirro
     mv /tmp/kafka_"$SCALA_VERSION-$KAFKA_VERSION" $KAFKA_HOME
 
 EXPOSE 2181 9092
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=6 CMD [ "/opt/services/healthcheck.sh" ]
 
 CMD ["supervisord", "-n"]

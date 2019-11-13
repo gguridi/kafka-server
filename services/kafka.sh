@@ -29,7 +29,7 @@ case "$1" in
         echo 'Zookeeper started. Proceeding to start Kafka.'
 
         # Start daemon.
-        pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+        pid=`jps -ml | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
           then
             echo "Kafka is already running"
@@ -48,7 +48,7 @@ case "$1" in
         $0 start
         ;;
   status)
-        pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+        pid=`jps -ml | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
           then
           echo "Kafka is Running as PID: $pid"

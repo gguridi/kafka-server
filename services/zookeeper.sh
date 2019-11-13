@@ -41,7 +41,7 @@ case "$1" in
         $0 start
         ;;
   status)
-        pid=`ps ax | grep -i 'org.apache.zookeeper' | grep -v grep | awk '{print $1}'`
+        pid=`jps -ml | grep -i 'org.apache.zookeeper' | grep -v grep | awk '{print $1}'`
         if [ -n "$pid" ]
           then
           echo "Zookeeper is Running as PID: $pid"
