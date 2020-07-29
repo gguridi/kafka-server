@@ -1,0 +1,30 @@
+language: scala
+
+addons:
+  hosts:
+    - kafka-server
+
+scala:
+  - 2.11
+  - 2.12
+
+services:
+  - docker
+
+env:
+  - KAFKA_VERSION=2.2.2
+  - KAFKA_VERSION=2.3.0
+  - KAFKA_VERSION=2.3.1
+  - KAFKA_VERSION=2.4.0  
+  - KAFKA_VERSION=2.4.1
+
+before_install:
+- export SCALA_VERSION=$TRAVIS_SCALA_VERSION
+- nvm install 11
+- yarn install --verbose
+
+script:
+  - yarn run build
+  - yarn run docker-run
+  - sleep 10
+  - yarn test
