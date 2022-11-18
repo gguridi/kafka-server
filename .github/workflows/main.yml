@@ -1,6 +1,9 @@
 name: CI
 
-on: [push, release]
+on:
+  push:
+  release:
+    types: [published]
 
 jobs:
   kafka-test:

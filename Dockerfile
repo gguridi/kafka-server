@@ -1,4 +1,5 @@
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:17-jdk-jammy
+
 
 ARG SCALA_VERSION="2.12"
 ARG KAFKA_VERSION="2.4.1"
@@ -6,12 +7,12 @@ ARG KAFKA_VERSION="2.4.1"
 ENV DEBIAN_FRONTEND noninteractive
 ENV KAFKA_HOME /opt/kafka
 
-RUN apk update
-RUN apk add openssl ca-certificates curl supervisor bind-tools net-tools bash libc6-compat
+RUN apt-get update
+RUN apt-get install -y openssl ca-certificates curl supervisor net-tools bash
 RUN update-ca-certificates
 
 COPY services/ /opt/services/
-COPY supervisor/ /etc/supervisor.d/
+COPY supervisor/ /etc/supervisor/conf.d/
 
 RUN curl -o /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz http://apache.mirror.anlx.net/kafka/"$KAFKA_VERSION"/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz && \
     tar xvfz /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz -C /tmp && \
