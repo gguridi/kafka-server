@@ -6,12 +6,9 @@ const admin = kafka.AdminClient.create({
   "metadata.broker.list": brokers,
 });
 
-it("should create a `new-topic` topic", async (done) => {
-  admin.createTopic(
-    { topic: "new-topic", num_partitions: 1, replication_factor: 1 },
-    (err) => {
-      expect(err).toBeUndefined();
-      done();
-    },
-  );
+it("should create a `new-topic` topic", (done) => {
+  admin.createTopic({ topic: "new-topic", num_partitions: 1, replication_factor: 1 }, (err) => {
+    expect(err).toBeUndefined();
+    done();
+  });
 }, 30000);

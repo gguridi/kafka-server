@@ -5,14 +5,14 @@
   "scripts": {
     "start": "mockserver -p 80 -q -m /opt/api",
     "build": "docker build -t kafka-server --build-arg SCALA_VERSION=$SCALA_VERSION --build-arg KAFKA_VERSION=$KAFKA_VERSION .",
-    "docker-run": "docker run --name kafka-local -d -p 2181:2181 -p 9092:9092 -e KAFKA__ADVERTISED_HOST_NAME=localhost kafka-server",
+    "docker-run": "docker run --name kafka-local -d -p 2181:2181 -p 9092:9092 -e KAFKA__ADVERTISED_HOST_NAME=localhost -e KAFKA__ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 kafka-server",
     "docker-stop": "docker rm -f kafka-local || true",
     "test": "node ./node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
   },
   "license": "ISC",
   "devDependencies": {
-    "jest": "^26.1.0",
-    "node-rdkafka": "^2.9.0"
+    "jest": "^29.3.1",
+    "node-rdkafka": "^2.14.0"
   },
   "jest": {
     "verbose": true,

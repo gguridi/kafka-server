@@ -15,8 +15,8 @@ terms of performance.
 
 To build the image we need to pass two arguments:
 
--   `SCALA_VERSION` is used to specify the scala version to use.
--   `KAFKA_VERSION` is used to specify the kafka version to use.
+- `SCALA_VERSION` is used to specify the scala version to use.
+- `KAFKA_VERSION` is used to specify the kafka version to use.
 
 If no arguments are passed, the latest scala and kafka versions will be used to
 build the latest image.
@@ -59,24 +59,30 @@ any default property of kafka/zookeeper using them.
 
 The format accepted is the following:
 
--   KAFKA\_\_PROPERTY_NAME=value for server.properties (kafka) configuration.
--   ZOOKEEPER\_\_PROPERTY_NAME=value for zookeeper.properties (zookeeper) configuration.
+- KAFKA\_\_PROPERTY_NAME=value for server.properties (kafka) configuration.
+- ZOOKEEPER\_\_PROPERTY_NAME=value for zookeeper.properties (zookeeper) configuration.
 
 The "\_" of the property name will be replaced by dots, so as examples:
 
-1.  This will set the property `advertised.host.name` of kafka to `my-docker-image`.
+1. This will set the property `advertised.host.name` of kafka to `my-docker-image`.
 
 ```bash
 -e KAFKA__ADVERTISED_HOST_NAME=my-docker-image
 ```
 
-2.  This will override the `listener` property to use several ports.
+Note: From kafka 3.x this property has changed to `advertised.listeners`.
+
+```bash
+KAFKA__ADVERTISED_LISTENERS=PLAINTEXT://my-docker-image
+```
+
+2. This will override the `listener` property to use several ports.
 
 ```bash
 -e KAFKA__LISTENERS=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
 ```
 
-2.  This would override the `log.dir` property to use the folder `/var/kafka/log`.
+2. This would override the `log.dir` property to use the folder `/var/kafka/log`.
 
 ```bash
 -e KAFKA__LOG_DIR=/var/kafka/log

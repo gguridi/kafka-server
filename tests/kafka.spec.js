@@ -20,8 +20,7 @@ const poll = (i) => {
   });
 };
 
-it("should receive a message sent to the `test-topic` topic", async (done) => {
+it("should receive a message sent to the `test-topic` topic", async () => {
   const received = await poll(0);
-  expect(received.message).toEqual("this is a test message");
-  done();
+  return expect(received.message).toEqual("this is a test message");
 }, 30000);
