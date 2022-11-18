@@ -1,10 +1,38 @@
 name: CI
 
-on: push
+on: [push, release]
 
 jobs:
   kafka-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scala_version: [2.12, 2.13]
+        kafka_version: [2.8.2, 3.0.2, 3.1.2, 3.2.3, 3.3.1]
+    env:
+      KAFKA_IMAGE: kafka-test
+      SCALA_VERSION: ${{ matrix.scala_version }}
+      KAFKA_VERSION: ${{ matrix.kafka_version }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: install dependencies
+        run: yarn install
+      - name: build kafka images
+        run: yarn run build
+      - name: run kafka image
+        run: |
+          yarn run docker-run
+          sleep 10
+      - name: run tests
+        run: yarn test
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: kafka-test
+    if: github.event_name == 'release'
     strategy:
       matrix:
         scala_version: [2.12, 2.13]
@@ -16,14 +44,14 @@ jobs:
           node-version: 16
       - name: install dependencies
         run: yarn install
-      - name: build kafka images
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: publish kafka images
         env:
+          KAFKA_IMAGE: "gguridi/kafka:${{ matrix.scala_version }}-${{ matrix.kafka_version }}"
           SCALA_VERSION: ${{ matrix.scala_version }}
           KAFKA_VERSION: ${{ matrix.kafka_version }}
-        run: yarn run build
-      - name: run kafka image
-        run: |
-          yarn run docker-run
-          sleep 10
-      - name: run tests
-        run: yarn test
+        run: yarn run publish

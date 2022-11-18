@@ -4,8 +4,9 @@
   "description": "Docker images with Kafka to be used in testing/development environment",
   "scripts": {
     "start": "mockserver -p 80 -q -m /opt/api",
-    "build": "docker build -t kafka-server --build-arg SCALA_VERSION=$SCALA_VERSION --build-arg KAFKA_VERSION=$KAFKA_VERSION .",
-    "docker-run": "docker run --name kafka-local -d -p 2181:2181 -p 9092:9092 -e KAFKA__ADVERTISED_HOST_NAME=localhost -e KAFKA__ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 kafka-server",
+    "build": "docker build -t $KAFKA_IMAGE --build-arg SCALA_VERSION=$SCALA_VERSION --build-arg KAFKA_VERSION=$KAFKA_VERSION .",
+    "publish": "yarn run build && docker push $KAFKA_IMAGE",
+    "docker-run": "docker run --name kafka-local -d -p 2181:2181 -p 9092:9092 -e KAFKA__ADVERTISED_HOST_NAME=localhost -e KAFKA__ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 $KAFKA_IMAGE",
     "docker-stop": "docker rm -f kafka-local || true",
     "test": "node ./node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
   },
