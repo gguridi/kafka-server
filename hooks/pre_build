@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-SCALA_VERSIONS=( "2.11" "2.12" )
-KAFKA_VERSIONS=( "2.2.2" "2.3.0" "2.3.1" "2.4.0" "2.4.1" )
+SCALA_VERSIONS=( "2.12" "2.13" )
+KAFKA_VERSIONS=( "2.8.2" "3.0.2" "3.1.2" "3.2.3" "3.3.1" )
 
 for SCALA_VERSION in "${SCALA_VERSIONS[@]}"
 do

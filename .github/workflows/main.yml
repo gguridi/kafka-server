@@ -7,23 +7,23 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala_version: [2.11, 2.12]
-        kafka_version: [2.2.2, 2.3.0, 2.3.1, 2.4.0, 2.4.1]
+        scala_version: [2.12, 2.13]
+        kafka_version: [2.8.2, 3.0.2, 3.1.2, 3.2.3, 3.3.1]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 11
-    - name: install dependencies
-      run: yarn install
-    - name: build kafka images
-      env:
-        SCALA_VERSION: ${{ matrix.scala_version }}
-        KAFKA_VERSION: ${{ matrix.kafka_version }}
-      run: yarn run build
-    - name: run kafka image
-      run: |
-        yarn run docker-run
-        sleep 10
-    - name: run tests
-      run: yarn test
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: install dependencies
+        run: yarn install
+      - name: build kafka images
+        env:
+          SCALA_VERSION: ${{ matrix.scala_version }}
+          KAFKA_VERSION: ${{ matrix.kafka_version }}
+        run: yarn run build
+      - name: run kafka image
+        run: |
+          yarn run docker-run
+          sleep 10
+      - name: run tests
+        run: yarn test
