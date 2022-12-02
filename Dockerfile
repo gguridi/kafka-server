@@ -1,8 +1,8 @@
-FROM eclipse-temurin:17-jdk-jammy
+FROM eclipse-temurin:11-jdk-jammy
 
 
-ARG SCALA_VERSION="2.12"
-ARG KAFKA_VERSION="2.4.1"
+ARG SCALA_VERSION="2.13"
+ARG KAFKA_VERSION="3.3.1"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV KAFKA_HOME /opt/kafka
