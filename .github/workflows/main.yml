@@ -62,4 +62,4 @@ jobs:
           KAFKA_IMAGE: "gguridi/kafka:${{ matrix.scala_version }}-${{ matrix.kafka_version }}"
           SCALA_VERSION: ${{ matrix.scala_version }}
           KAFKA_VERSION: ${{ matrix.kafka_version }}
-        run: yarn run publish
+        run: yarn run publish-multiarch
