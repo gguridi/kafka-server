@@ -1,89 +1,93 @@
 # Kafka server
 
-[![Build Status](https://travis-ci.org/gguridi/kafka-server.svg?branch=master)](https://travis-ci.org/gguridi/kafka-server)
-![CI](https://github.com/gguridi/kafka-server/workflows/CI/badge.svg?branch=master)
+![CI](https://github.com/gguridi/kafka-server/actions/workflows/ci.yml/badge.svg?branch=master)
 
-This repository contains the code to generate testing docker images with Kafka to
-be used in testing/development environment for easily check integrations.
+Single-node Apache Kafka images (KRaft, combined broker and controller) for development and testing
+environments. They are small and start fast, but are not tuned or secured for production.
 
-These docker images are not intended to be used in production environments or
-scenarios where you need more control over the instance settings. This alpine-based
-images are intended to be as small as possible but they haven't been tuned in
-terms of performance.
-
-## Build
-
-To build the image we need to pass two arguments:
-
-- `SCALA_VERSION` is used to specify the scala version to use.
-- `KAFKA_VERSION` is used to specify the kafka version to use.
-
-If no arguments are passed, the latest scala and kafka versions will be used to
-build the latest image.
-
-Using these arguments we can generate as many images as we need without having
-to rewrite the helper scripts.
-
-```bash
-docker build -t {name:tag} --build-arg SCALA_VERSION=2.11 --build-arg KAFKA_VERSION=1.1.0 .
-```
-
-See `hooks/pre_build` for further information about how the tags are automatically
-generated in the [docker repository](https://hub.docker.com/r/gguridi/kafka/tags/).
+Images are published for `linux/amd64` and `linux/arm64` to
+[Docker Hub](https://hub.docker.com/r/gguridi/kafka/tags) and `ghcr.io/gguridi/kafka`.
 
 ## Usage
 
-You can build your own image or use one of the images available at
-[docker repository](https://hub.docker.com/r/gguridi/kafka/tags/).
-
-To run a basic instance that will accept connections as `localhost`:
-
 ```bash
-docker run -d -p 9092:9092 gguridi/kafka:latest
+docker run -d -p 9092:9092 gguridi/kafka
 ```
 
-You can also specify any of the prebuilt images the automatic builds make available for you:
+Clients on the host connect to `localhost:9092`.
 
-```bash
-docker run -d -p 9092:9092 gguridi/kafka:2.11-2.0.0
+### Tags
+
+| Tag          | Example      | Meaning                                       |
+| ------------ | ------------ | --------------------------------------------- |
+| `latest`     | `latest`     | Newest Kafka version built by this repository |
+| `X.Y`        | `4.4`        | Newest patch release of a Kafka minor version |
+| `X.Y.Z`      | `4.4.0`      | Exact Kafka version                           |
+| `2.13-X.Y.Z` | `2.13-4.4.0` | Exact Kafka version and its Scala version     |
+
+The Kafka versions built are listed in [`kafka-versions.json`](./kafka-versions.json).
+
+### docker compose
+
+When clients run in other containers, advertise the service name instead of `localhost`:
+
+```yaml
+services:
+  kafka:
+    image: gguridi/kafka:4.4
+    environment:
+      KAFKA__ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
 ```
-
-Where the first part of the tag specifies the scala version, and the second one
-the kafka version. Check the [tag list](https://hub.docker.com/r/gguridi/kafka/tags/)
-to see which versions are available.
 
 ## Configuration
 
-The image is fully configurable through environment variables. We can override
-any default property of kafka/zookeeper using them.
-
-The format accepted is the following:
-
-- KAFKA\_\_PROPERTY_NAME=value for server.properties (kafka) configuration.
-- ZOOKEEPER\_\_PROPERTY_NAME=value for zookeeper.properties (zookeeper) configuration.
-
-The "\_" of the property name will be replaced by dots, so as examples:
-
-1. This will set the property `advertised.host.name` of kafka to `my-docker-image`.
+Any `server.properties` key can be set with an environment variable named `KAFKA__` followed by the
+property name in upper case, with dots replaced by underscores. Variables are applied on every start.
 
 ```bash
--e KAFKA__ADVERTISED_HOST_NAME=my-docker-image
+docker run -d -p 9092:9092 \
+  -e KAFKA__NUM_PARTITIONS=3 \
+  -e KAFKA__LOG_RETENTION_HOURS=1 \
+  gguridi/kafka
 ```
 
-Note: From kafka 3.x this property has changed to `advertised.listeners`.
+The defaults are in [`config/server.properties`](./config/server.properties). Other variables:
+
+| Variable           | Default                  | Purpose                                 |
+| ------------------ | ------------------------ | --------------------------------------- |
+| `KAFKA_HEAP_OPTS`  | `-Xms512m -Xmx512m`      | JVM heap of the broker                  |
+| `KAFKA_CLUSTER_ID` | `5L6g3nShT-eMCtK--X86sw` | Cluster id used to format empty storage |
+
+Data is stored in the `/var/lib/kafka/data` volume. The broker runs as user `kafka` (uid 1000).
+
+Passing a command runs it instead of the broker, for example:
 
 ```bash
-KAFKA__ADVERTISED_LISTENERS=PLAINTEXT://my-docker-image
+docker run --rm gguridi/kafka kafka-topics.sh --version
 ```
 
-2. This will override the `listener` property to use several ports.
+## Build
 
 ```bash
--e KAFKA__LISTENERS=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
+docker build -t kafka-test --build-arg KAFKA_VERSION=4.4.0 .
 ```
 
-2. This would override the `log.dir` property to use the folder `/var/kafka/log`.
+`SCALA_VERSION` (default `2.13`) is also accepted as a build argument.
+
+## Run tests
+
+Prerequisites: Node 24 and Docker.
 
 ```bash
--e KAFKA__LOG_DIR=/var/kafka/log
+npm ci
+KAFKA_VERSION=4.4.0 npm run docker:build
+npm run docker:run && npm run docker:wait
+npm test
+npm run docker:stop
 ```
+
+## Release
+
+Every push and pull request builds and tests all Kafka versions. Publishing a GitHub release builds the
+multi-arch images, pushes them to Docker Hub and GHCR, and syncs this README to Docker Hub. It uses the
+`DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` repository secrets.
